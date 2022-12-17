@@ -6,16 +6,21 @@ public class PlayerMovement : MonoBehaviour
 {
     public float speed;
     public float rotationSpeed;
+    public float jumpSpeed;
 
     private CharacterController characterController;
+    private float ySpeed;
+    private float originalStepOffset;
 
     void Start()
     {
         characterController = GetComponent<CharacterController>();
+        originalStepOffset = characterController.stepOffset;
     }
 
     void Update()
-    {   //assign player input to variables
+    {  
+        //assign player input to variables
         float horizontalInput = Input.GetAxis("Horizontal");
         float verticalInput = Input.GetAxis("Vertical");
 
@@ -24,7 +29,26 @@ public class PlayerMovement : MonoBehaviour
         float magnitude = Mathf.Clamp01(movementDirection.magnitude) * speed;
         movementDirection.Normalize();
 
-        characterController.SimpleMove(movementDirection * magnitude);
+        ySpeed += Physics.gravity.y * Time.deltaTime; // adjust vertical speed according to gravity
+
+        if (characterController.isGrounded) //if isgrounded reset physics vertical velocity
+        {
+            ySpeed = -0.5f;
+            characterController.stepOffset = originalStepOffset;
+        }
+
+        if (Input.GetButtonDown("Jump") && characterController.isGrounded)
+        {
+            ySpeed = jumpSpeed;
+        }
+        else
+        {
+            characterController.stepOffset = 0;
+        }
+
+        Vector3 velocity = movementDirection * magnitude;
+        velocity.y = ySpeed;
+        characterController.Move(velocity * Time.deltaTime);
 
         //rotate player to movement direction
         if (movementDirection != Vector3.zero)
