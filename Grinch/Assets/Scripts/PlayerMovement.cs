@@ -6,7 +6,10 @@ public class PlayerMovement : MonoBehaviour
 {
     public float speed;
     public float rotationSpeed;
-    public float jumpSpeed;
+    public float jumpHeight;
+    public float gravityMultiplier;
+
+
 
     private CharacterController characterController;
     private float ySpeed;
@@ -29,7 +32,9 @@ public class PlayerMovement : MonoBehaviour
         float magnitude = Mathf.Clamp01(movementDirection.magnitude) * speed;
         movementDirection.Normalize();
 
-        ySpeed += Physics.gravity.y * Time.deltaTime; // adjust vertical speed according to gravity
+
+        float gravity = Physics.gravity.y * gravityMultiplier;   //calculation of gravity physics
+        ySpeed += gravity * Time.deltaTime; // adjust vertical speed according to gravity
 
         if (characterController.isGrounded) //if isgrounded reset physics vertical velocity
         {
@@ -39,7 +44,7 @@ public class PlayerMovement : MonoBehaviour
 
         if (Input.GetButtonDown("Jump") && characterController.isGrounded)
         {
-            ySpeed = jumpSpeed;
+            ySpeed = Mathf.Sqrt(jumpHeight * -3 * gravity); //calculation for jump height required
         }
         else
         {

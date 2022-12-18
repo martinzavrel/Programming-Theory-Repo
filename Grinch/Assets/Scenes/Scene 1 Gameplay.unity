@@ -851,7 +851,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   speed: 10
   rotationSpeed: 720
-  jumpSpeed: 10
+  jumpHeight: 3
+  gravityMultiplier: 1.5
 --- !u!136 &2046430904
 CapsuleCollider:
   m_ObjectHideFlags: 0
