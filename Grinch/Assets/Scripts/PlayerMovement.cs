@@ -1,7 +1,12 @@
+using JetBrains.Annotations;
+using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Net.Mail;
 using Unity.VisualScripting;
 using UnityEngine;
+using UnityEngine.Experimental.Rendering;
+using UnityEngine.SearchService;
 
 public class PlayerMovement : MonoBehaviour
 {
@@ -16,16 +21,18 @@ public class PlayerMovement : MonoBehaviour
     private float originalStepOffset;
     private float nextFire = 0f;
     private float fireRate = 1f; //cooldown time
+    int i;
+
 
 
 
 
     void Start()
     {
-       
+        i = InteractionManager.Instance.i;
         characterController = GetComponent<CharacterController>();
         originalStepOffset = characterController.stepOffset;
-
+      
     }
 
     void Update()
@@ -75,7 +82,8 @@ public class PlayerMovement : MonoBehaviour
 
         if (Input.GetKeyDown(KeyCode.F) && InteractionManager.Instance.isInRange && Time.time > nextFire)
         {
-            PickUp();
+            //PickUp();
+            Interact();
             nextFire = Time.time + fireRate;
         }
 
@@ -86,26 +94,77 @@ public class PlayerMovement : MonoBehaviour
             nextFire = Time.time + fireRate;
         }
 
+       
+       
+
 
     }
 
 
+
+   
+
+
+    public void Interact()
+    {
+        if (InteractionManager.Instance.objInRange.CompareTag("Present"))
+        {
+            PickUp();
+
+        }
+        else if (InteractionManager.Instance.objInRange.CompareTag("Door") && InteractionManager.Instance.isInInventory)
+        {
+            Debug.Log("Deliver"); //To do deliver function
+            Deliver();
+        }
+        else Debug.Log("nothing to do");
+
+
+
+    }
     public void PickUp()
     {
         Debug.Log("PickUp");
-        Destroy(GameObject.Find(InteractionManager.Instance.objInRange));
-        InteractionManager.Instance.isInInventory = true;
-        InteractionManager.Instance.isInRange = false;
+       
+       InteractionManager.Instance.isInInventory = true;
+        InteractionManager.Instance.inventory[0] = InteractionManager.Instance.objInRange;
+        InteractionManager.Instance.tempInvTag = InteractionManager.Instance.childInRange.tag;
+        InteractionManager.Instance.objInRange.SetActive(false);
+      
+        InteractionManager.Instance.objInRange = null;
+        InteractionManager.Instance.childInRange = null;
 
+
+        InteractionManager.Instance.isInRange = false;
     }
+
+    
 
     public void Drop()
     {
         Debug.Log("Drop");
+     
+        InteractionManager.Instance.inventory[0].transform.position = transform.TransformPoint(Vector3.forward);
+        InteractionManager.Instance.inventory[0].SetActive(true);
         InteractionManager.Instance.isInInventory = false;
+        InteractionManager.Instance.inventory[0] = null;
+        InteractionManager.Instance.tempInvTag = null;
     }
 
+    void Deliver()
+    {
+        InteractionManager.Instance.presentsTags[i] = InteractionManager.Instance.tempInvTag;
+        InteractionManager.Instance.doorsTags[i] = InteractionManager.Instance.childInRange.tag;
+        
+        i++;
+        InteractionManager.Instance.i = i;
+        InteractionManager.Instance.tempInvTag = null;
+        InteractionManager.Instance.inventory[0] = null; 
+        InteractionManager.Instance.isInInventory = false;
 
+    }
+
+ 
 
 
 

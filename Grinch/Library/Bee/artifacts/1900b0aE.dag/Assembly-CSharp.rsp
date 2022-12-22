@@ -361,6 +361,7 @@
 "Assets/Scripts/InteractionManager.cs"
 "Assets/Scripts/IsInRange.cs"
 "Assets/Scripts/PlayerMovement.cs"
+"Assets/Scripts/Tag.cs"
 -langversion:9.0
 
 /deterministic
